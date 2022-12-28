@@ -1,0 +1,8 @@
+digraph RBTree {
+node [style=filled];
+"139773153567664" [color=black,fontcolor=white,label="0"]
+L139773153567664 [label="",color=white]
+139773153567664 -> L139773153567664
+R139773153567664 [label="",color=white]
+139773153567664 -> R139773153567664
+}
