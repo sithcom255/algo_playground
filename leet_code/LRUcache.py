@@ -1,78 +1,77 @@
 from typing import List
 
-class LRUCache:
 
+class LRUCache:
     def __init__(self, capacity: int):
-        self.cache_order = {}
         self.hash_map = {}
+        self.head = None
+        self.tail = None
         self.capacity = capacity
 
     def get(self, key: int) -> int:
-
+        if key not in self.hash_map:
+            return -1
+        node = self.hash_map[key]
+        self.remove(node)
+        node = self.add_to_head(node.key, node.value)
+        self.hash_map[key] = node
+        return node.value
 
     def put(self, key: int, value: int) -> None:
-        if len(self.hash_map) == self.capacity:
-            self.hash_map.pop(self.cache_order.pop(-1))
-        self.hash_map[key] = value
+        if key in self.hash_map:
+            self.remove(self.hash_map[key])
+        elif len(self.hash_map) >= self.capacity:
+            tail = self.hash_map.pop(self.tail.key)
+            self.remove(tail)
+        node = self.add_to_head(key, value)
+        self.hash_map[key] = node
 
+    def add_to_head(self, key, value):
+        node = Node(key, value)
+        if self.head is None and self.tail is None:
+            self.head = node
+            self.tail = node
+        else:
+            node.right = self.head
+            node.right.left = node
+            self.head = node
+        return node
 
+    def remove_from_tail(self):
+        self.tail = self.tail.left
+        if self.tail is not None:
+            self.tail.right = None
+
+    def remove(self, node):
+        l = node.left
+        r = node.right
+        if l is not None:
+            l.right = r
+        if r is not None:
+            r.left = l
+        if node == self.tail:
+            self.remove_from_tail()
+        if node == self.head:
+            self.head = self.head.right
+            if self.head is not None:
+                self.head.left = None
 
 class Node:
-    def __init__(self, value: int, quantity=1):
+    def __init__(self, key: int, value: int,  left=None, right=None):
+        self.key = key
         self.value = value
-        self.quantity = quantity
-        self.right = None
-        self.left = None
-
-    def insert(self, value):
-        nxt = None
-        if value < self.value:
-            if self.left is None:
-                self.left = Node(value)
-            else:
-                self.left.insert(value)
-        elif value == self.value:
-            self.quantity += 1
-        else:
-            if self.right is None:
-                self.right = Node(value)
-            else:
-                self.right.insert(value)
-
-    def get_all(self, arr):
-        if self.left:
-            self.left.get_all(arr)
-        arr.append(Node(self.value, quantity=self.quantity))
-        if self.right:
-            self.right.get_all(arr)
-
-
-def heapify(arr: List[Node]):
-    half = (len(arr) // 2) + 1
-    for i in reversed(range(0, half)):
-        heap_call(arr, i)
-
-
-def heap_call(arr: List[Node], i):
-    max_elem = i
-    left = get_left(i)
-    if left < len(arr):
-        if arr[max_elem].quantity < arr[left].quantity:
-            max_elem = left
-    right = get_right(i)
-    if right < len(arr):
-        if arr[max_elem].quantity < arr[right].quantity:
-            max_elem = right
-    if max_elem != i:
-        arr[i], arr[max_elem] = arr[max_elem], arr[i]
-        heap_call(arr, max_elem)
-
-
-def get_left(i): return i * 2 + 1
-
-
-def get_right(i): return i * 2 + 2
+        self.left = left
+        self.right = right
 
 
 if __name__ == '__main__':
-    print(Solution().topKFrequent(nums=[4,1,-1,2,-1,2,3], k=2))
+    lRUCache = LRUCache(2)
+    lRUCache.put(1, 1)
+    lRUCache.put(2, 2)
+    lRUCache.get(1)
+    lRUCache.put(3, 3)
+    lRUCache.get(2)
+    lRUCache.put(4, 4)
+    lRUCache.get(1)
+    lRUCache.get(3)
+    lRUCache.get(4)
